@@ -14,13 +14,9 @@ function parentInline(node?: HTMLElement | null): void {
 
 function transformProps(props: TabRouterPreviewProps): BadgeSampleProps {
     return {
-        type: props.tabrouterType,
-        bootstrapStyle: props.bootstrapStyle,
         className: props.className,
-        clickable: false,
         style: parseInlineStyle(props.style),
-        defaultValue: props.tabrouterValue ? props.tabrouterValue : "",
-        value: props.valueAttribute
+        prefixValue: props.prefixValue
     };
 }
 

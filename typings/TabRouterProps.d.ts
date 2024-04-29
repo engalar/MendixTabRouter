@@ -4,23 +4,13 @@
  * @author Mendix Widgets Framework Team
  */
 import { CSSProperties } from "react";
-import { ActionValue, EditableValue } from "mendix";
-import { Big } from "big.js";
-
-export type BootstrapStyleEnum = "default" | "primary" | "success" | "info" | "inverse" | "warning" | "danger";
-
-export type TabrouterTypeEnum = "badge" | "label";
 
 export interface TabRouterContainerProps {
     name: string;
     class: string;
     style?: CSSProperties;
     tabIndex?: number;
-    valueAttribute?: EditableValue<string | Big>;
-    tabrouterValue: string;
-    bootstrapStyle: BootstrapStyleEnum;
-    tabrouterType: TabrouterTypeEnum;
-    onClickAction?: ActionValue;
+    prefixValue: string;
 }
 
 export interface TabRouterPreviewProps {
@@ -32,9 +22,5 @@ export interface TabRouterPreviewProps {
     style: string;
     styleObject?: CSSProperties;
     readOnly: boolean;
-    valueAttribute: string;
-    tabrouterValue: string;
-    bootstrapStyle: BootstrapStyleEnum;
-    tabrouterType: TabrouterTypeEnum;
-    onClickAction: {} | null;
+    prefixValue: string;
 }

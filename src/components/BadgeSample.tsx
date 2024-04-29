@@ -1,33 +1,126 @@
-import { ReactElement, CSSProperties, createElement } from "react";
+import React, { useState, ReactElement, CSSProperties, createElement, useEffect, useCallback, useRef } from "react";
 import classNames from "classnames";
+import { Tabs } from "antd";
 
-export interface BadgeSampleProps {
-    type: "badge" | "label";
-    defaultValue?: string;
-    className?: string;
-    style?: CSSProperties;
-    value?: string;
-    bootstrapStyle?: BootstrapStyle;
-    clickable?: boolean;
-    onClickAction?: () => void;
-    getRef?: (node: HTMLElement) => void;
+import patch from "./patch";
+
+/**
+ * page -> domNode or form or null
+ */
+export function usePatch(peek: PeekFunction, onReady: OnReadyFunction): void {
+    useEffect(() => {
+        const disp = patch(peek, onReady);
+        return () => {
+            disp();
+        };
+    }, [peek, onReady]);
 }
 
-export type BootstrapStyle = "default" | "info" | "inverse" | "primary" | "danger" | "success" | "warning";
+export interface BadgeSampleProps {
+    className?: string;
+    prefixValue: string;
+    style?: CSSProperties;
+}
 
 export function BadgeSample(props: BadgeSampleProps): ReactElement {
-    const { type, defaultValue, className, style, value, bootstrapStyle, clickable, onClickAction, getRef } = props;
+    const { className, style } = props;
+
+    const ref = useRef<HTMLDivElement>(null);
+    const [openPages, setOpenPages] = useState<string[]>([]);
+    const [activeKey, setActiveKey] = useState<string>();
+    const [items, setItems] = useState<any[]>([]);
+
+    const peek: PeekFunction = useCallback(
+        (page: string) => {
+            if (!page.startsWith(props.prefixValue)) {
+                return "skip";
+            } else {
+                let pageIndex = -1;
+                setOpenPages(p => {
+                    pageIndex = p.findIndex(item => item === page);
+                    return p;
+                });
+                if (pageIndex >= 0) {
+                    setActiveKey(page);
+
+                    // undefined will skip normal behavior
+                    return "hit";
+                }
+
+                // create new tab
+                setItems((p: any[]) => [...p, { label: "", /* children: fragment, */ key: page }]);
+                setActiveKey(page);
+                setOpenPages((p: string[]) => [...p, page]);
+                // force rerender
+
+                return "miss";
+            }
+        },
+        [props.prefixValue]
+    );
+
+    const onReady: OnReadyFunction = useCallback((page: string, form: any) => {
+        ref.current?.querySelector(`.ant-tabs-tabpane.ant-tabs-tabpane-active`)!.appendChild(form.domNode);
+        setItems(p => {
+            const index = p.findIndex(item => item.key === page);
+            // change page label in p
+            p[index].label = form.title;
+            return index >= 0 ? [...p] : p;
+        });
+    }, []);
+
+    usePatch(peek, onReady);
+
+    const onChange = (newActiveKey: string): void => {
+        setActiveKey(newActiveKey);
+    };
+
+    const onEdit = useCallback(
+        (targetKey: React.MouseEvent | React.KeyboardEvent | string, action: "add" | "remove") => {
+            if (action === "add") {
+                // add();
+            } else {
+                // remove
+                let newActiveKey = activeKey;
+                let lastIndex = -1;
+                items.forEach((item, i) => {
+                    if (item.key === targetKey) {
+                        lastIndex = i - 1;
+                    }
+                });
+
+                const removeIndex = items.findIndex(item => item.key === targetKey);
+                if (removeIndex >= 0) {
+                    openPages.splice(removeIndex, 1);
+                    setOpenPages(openPages);
+                }
+
+                const newPanes = items.filter(item => item.key !== targetKey);
+                if (newPanes.length && newActiveKey === targetKey) {
+                    if (lastIndex >= 0) {
+                        newActiveKey = newPanes[lastIndex].key;
+                    } else {
+                        newActiveKey = newPanes[0].key;
+                    }
+                }
+                setItems(newPanes);
+                setActiveKey(newActiveKey);
+            }
+        },
+        [activeKey, items, openPages]
+    );
+
     return (
-        <span
-            className={classNames("widget-tabrouter", type, className, {
-                [`label-${bootstrapStyle}`]: !!bootstrapStyle,
-                "widget-tabrouter-clickable": clickable
-            })}
-            onClick={onClickAction}
-            ref={getRef}
-            style={style}
-        >
-            {value || defaultValue}
-        </span>
+        <div ref={ref} className={classNames("widget-tabrouter", className)} style={style}>
+            <Tabs
+                hideAdd
+                size="small"
+                onChange={onChange}
+                activeKey={activeKey}
+                onEdit={onEdit}
+                type="editable-card"
+                items={items}
+            />
+        </div>
     );
 }
