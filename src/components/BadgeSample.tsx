@@ -29,6 +29,32 @@ export function BadgeSample(props: BadgeSampleProps): ReactElement {
     const [openPages, setOpenPages] = useState<string[]>([]);
     const [activeKey, setActiveKey] = useState<string>();
     const [items, setItems] = useState<any[]>([]);
+    useEffect(() => {
+        const cf = mx.ui.getContentForm();
+        cf.closePage = async function closePage(
+            numberOfPagesToClose: number,
+            allowBackToInitialPage: boolean,
+            hasPendingOpen: boolean
+        ) {
+            if (numberOfPagesToClose > 0) {
+                // close tab page in openPages and items
+                setOpenPages(p => {
+                    p.splice(-numberOfPagesToClose, numberOfPagesToClose);
+                    setActiveKey(p[p.length - 1]);
+                    return [...p];
+                });
+                setItems(p => {
+                    numberOfPagesToClose -= p.splice(-numberOfPagesToClose, numberOfPagesToClose).length;
+                    return [...p];
+                });
+            }
+            // eslint-disable-next-line no-return-await
+            return await cf.__proto__.closePage.call(cf, numberOfPagesToClose, allowBackToInitialPage, hasPendingOpen);
+        };
+        return () => {
+            delete cf.closePage;
+        };
+    }, []);
 
     const peek: PeekFunction = useCallback(
         (page: string) => {

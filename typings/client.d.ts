@@ -16,6 +16,8 @@ declare namespace mx {
             domNode?: Element;
         }
         let openForm2: OpenForm2Function;
+
+        let getContentForm: any;
     }
 }
 
@@ -27,3 +29,7 @@ declare namespace mx {
 type OnReadyFunction = (page: string, form?: any) => void;
 
 type PeekFunction = (page: string) => "skip" | "miss" | "hit";
+
+// close page function
+
+type CloseTabPageFunction = (numberOfPagesToClose: number) => number;
