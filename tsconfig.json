@@ -3,5 +3,5 @@
   "compilerOptions": {
     "baseUrl": "./"
   },
-  "include": ["./src", "./typings"]
+  "include": ["./src", "./typings", "rollup.config.js"]
 }

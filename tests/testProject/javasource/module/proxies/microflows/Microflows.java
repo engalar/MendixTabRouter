@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import com.mendix.core.Core;
 import com.mendix.systemwideinterfaces.core.IContext;
+import com.mendix.systemwideinterfaces.core.IMendixObject;
 
 public class Microflows
 {
@@ -39,6 +40,12 @@ public class Microflows
 	{
 		Map<java.lang.String, Object> params = new HashMap<>();
 		Core.microflowCall("Module.Act_Nav_TabNormal").withParams(params).execute(context);
+	}
+	public static module.proxies.Entity dS_Entity(IContext context)
+	{
+		Map<java.lang.String, Object> params = new HashMap<>();
+		IMendixObject result = (IMendixObject)Core.microflowCall("Module.DS_Entity").withParams(params).execute(context);
+		return result == null ? null : module.proxies.Entity.initialize(context, result);
 	}
 	public static void nav_TabRouter_With_Tab2(IContext context)
 	{
