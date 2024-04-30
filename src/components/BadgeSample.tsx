@@ -48,8 +48,11 @@ export function BadgeSample(props: BadgeSampleProps): ReactElement {
                     return [...p];
                 });
             }
-            // eslint-disable-next-line no-return-await
-            return await cf.__proto__.closePage.call(cf, numberOfPagesToClose, allowBackToInitialPage, hasPendingOpen);
+            // cf.setSuspend(false);
+            if (numberOfPagesToClose > 0) {
+                // eslint-disable-next-line no-return-await
+                await cf.__proto__.closePage.call(cf, numberOfPagesToClose, allowBackToInitialPage, hasPendingOpen);
+            }
         };
         return () => {
             delete cf.closePage;
@@ -93,6 +96,7 @@ export function BadgeSample(props: BadgeSampleProps): ReactElement {
             p[index].label = form.title;
             return index >= 0 ? [...p] : p;
         });
+        mx.ui.getContentForm().setSuspend(false);
     }, []);
 
     usePatch(peek, onReady);
