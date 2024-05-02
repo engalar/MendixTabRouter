@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { createElement, useEffect } from "react";
 
-import { BadgeSample } from "./BadgeSample";
+import BadgeSample from "./BadgeSample";
 
 
 // 👇 This default export determines where your story goes in the story list

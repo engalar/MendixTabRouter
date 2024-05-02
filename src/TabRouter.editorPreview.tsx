@@ -2,7 +2,8 @@ import { ReactElement, createElement } from "react";
 
 import { parseInlineStyle } from "@mendix/pluggable-widgets-tools";
 
-import { BadgeSample, BadgeSampleProps } from "./components/BadgeSample";
+import BadgeSample from "./components/BadgeSample";
+import { BadgeSampleProps } from "./components/BadgeSampleProps";
 import { TabRouterPreviewProps } from "../typings/TabRouterProps";
 
 function parentInline(node?: HTMLElement | null): void {
