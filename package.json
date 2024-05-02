@@ -16,6 +16,7 @@
   },
   "packagePath": "wengao",
   "scripts": {
+    "vite": "vite",
     "start": "pluggable-widgets-tools start:server",
     "dev": "pluggable-widgets-tools start:web",
     "build": "pluggable-widgets-tools build:web",
@@ -45,10 +46,13 @@
     "@types/jasmine": "^3.6.9",
     "@types/jest": "^29.0.0",
     "@types/react-test-renderer": "~18.0.0",
+    "@vitejs/plugin-react": "^4.2.1",
     "cypress": "^10.10.0",
     "eslint-plugin-storybook": "^0.8.0",
     "prop-types": "^15.8.1",
-    "storybook": "^8.0.9"
+    "storybook": "^8.0.9",
+    "vite": "^5.2.10",
+    "vite-plugin-external": "^4.3.1"
   },
   "dependencies": {
     "antd": "^5.16.4",
