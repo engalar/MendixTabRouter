@@ -21,3 +21,5 @@ mendixProject
 **/screenshot-results
 # **/tests/testProject
 **/artifacts
+
+*storybook.log
