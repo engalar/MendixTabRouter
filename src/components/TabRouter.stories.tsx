@@ -1,25 +1,20 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { createElement, useEffect } from "react";
 
-import { Alert } from "./Alert";
-
+import { BadgeSample } from "./BadgeSample";
 
 
 // 👇 This default export determines where your story goes in the story list
-const meta: Meta<typeof Alert> = {
-    component: Alert,
+const meta: Meta<typeof BadgeSample> = {
+    component: BadgeSample,
     argTypes: {
-        bootstrapStyle: {
-            control: { type: "select" },
-            options: ["default", "primary", "success", "info", "inverse", "warning", "danger"],
-        },
-        message: { control: { type: "text" } },
+        prefixValue: { control: { type: "text" } },
         className: { control: { type: "text" } },
     },
 };
 
 export default meta;
-type Story = StoryObj<typeof Alert>;
+type Story = StoryObj<typeof BadgeSample>;
 
 export const FirstStory: Story = {
     render: args => {
@@ -34,11 +29,10 @@ export const FirstStory: Story = {
                 document.head.removeChild(link);
             };
         });
-        return <Alert {...args}></Alert>;
+        return <BadgeSample {...args}></BadgeSample>
     },
     args: {
-        bootstrapStyle: "default",
-        message: "This is a default alert",
+        prefixValue: "xxx",
         className: "my-custom-class",
     }
 };
