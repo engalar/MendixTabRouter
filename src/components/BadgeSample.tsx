@@ -2,18 +2,9 @@
 import React, { useState, ReactElement, createElement, useEffect, useCallback, useRef } from "react";
 import classNames from "classnames";
 import { Tabs } from "antd";
-import { render } from "react-dom";
 
 import { usePatch } from "./usePatch";
 import { BadgeSampleProps } from "./BadgeSampleProps";
-
-if (import.meta.hot) {
-    const hot = import.meta.hot;
-    hot.accept((m) => {
-        const NewBadgeSample = m!.default;
-        render(<NewBadgeSample className="xx" prefixValue={"pv"} />, document.querySelector(".widget-tabrouter")!.parentElement);
-    });
-}
 
 export default function BadgeSample(props: BadgeSampleProps): ReactElement {
     const { className, style } = props;
@@ -135,7 +126,6 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
 
     return (
         <div ref={ref} className={classNames("widget-tabrouter", className)} style={style}>
-            <span>v5</span>
             <Tabs
                 hideAdd
                 size="small"
