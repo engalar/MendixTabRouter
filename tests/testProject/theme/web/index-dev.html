@@ -50,19 +50,16 @@
                                 'react',
                                 'react-dom',
                                 'react/jsx-runtime',
-                                'react/jsx-runtime.js',
                                 "dojo/aspect"
                             ], (
                                 react,
                                 reactDom,
                                 jsxRuntime,
-                                jsxRuntime2,
                                 Aspect
                             ) => {
                                 window.React = react;
                                 window.ReactDOM = reactDom;
-                                window.jsxRuntime = jsxRuntime;
-                                window.jsxRuntime2 = jsxRuntime2;
+                                window.jsxRuntime = {...jsxRuntime, jsxDEV: jsxRuntime.jsx };
                                 window.Aspect = Aspect;
                                 resolve()
                             });

@@ -126,6 +126,7 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
 
     return (
         <div ref={ref} className={classNames("widget-tabrouter", className)} style={style}>
+            <span>1</span>
             <Tabs
                 hideAdd
                 size="small"
