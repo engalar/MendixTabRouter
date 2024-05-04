@@ -8,12 +8,7 @@ export default defineConfig({
         createExternal({
             interop: "auto",
             externals: {
-                react: "React",
                 "dojo/aspect": "Aspect",
-                // "react-dom": "ReactDOM",
-                // "react/jsx-runtime": "react/jsx-dev-runtime",
-                // "react/jsx-runtime": "jsxRuntime",
-                // "react/jsx-dev-runtime": "jsxRuntime"
             }
         }),
         react()
