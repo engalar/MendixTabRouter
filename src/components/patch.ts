@@ -8,7 +8,7 @@ const old = mx.ui.openForm2;
  * @returns null fallback to original function, undefined skip, else render to domNode
  */
 export default function patch(peek: PeekFunction, onReady: OnReadyFunction) {
-    const afterHandle = aspect.after(mx.ui.getContentForm(), "onNavigation", () => {
+    const doPatch = () => {
         if (mx.ui.openForm2._tabRouter) {
             throw new Error("TabRouter patch has already been applied");
         }
@@ -38,9 +38,16 @@ export default function patch(peek: PeekFunction, onReady: OnReadyFunction) {
         }
         newFun._tabRouter = true;
         mx.ui.openForm2 = newFun;
-    });
+    };
+
+    let afterHandle: any = null;
+    if (document.querySelector(".mx-incubator.mx-offscreen")!.childElementCount === 0) {
+        doPatch();
+    } else {
+        afterHandle = aspect.after(mx.ui.getContentForm(), "onNavigation", doPatch);
+    }
     return () => {
-        afterHandle.remove();
+        afterHandle?.remove();
         mx.ui.openForm2 = old;
     };
 }
