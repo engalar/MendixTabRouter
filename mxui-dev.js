@@ -54,7 +54,7 @@ e.exports=ReactFamily.ReactDOM
 
 e.exports.Fragment=ReactFamily.RuntimeDev.Fragment,
 e.exports.jsx=ReactFamily.RuntimeDev.jsxDEV,
-e.exports.jsxs=ReactFamily.RuntimeDev.jsxDEV
+e.exports.jsxs=ReactFamily.Runtime.jsxs
 
 },
 
