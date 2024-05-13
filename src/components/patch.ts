@@ -22,10 +22,8 @@ export default function patch(peek: PeekFunction, onReady: OnReadyFunction) {
             const state = peek(page);
             switch (state) {
                 case "skip":
-                    return await old(page, disposeObj, title, currentForm, option, numberOfPagesToClose);
+                    return old(page, disposeObj, title, currentForm, option, numberOfPagesToClose);
                 case "hit":
-                    // todo: need return cached form here?
-                    // return null;
                 case "miss":
                     option.location = "node";
                     option.domNode = document.querySelector(".mx-incubator.mx-offscreen")!;

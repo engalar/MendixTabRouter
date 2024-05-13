@@ -1,4 +1,4 @@
-/// <reference types="vite/client" />
+// / <reference types="vite/client" />
 import React, { useState, ReactElement, createElement, useEffect, useCallback, useRef } from "react";
 import classNames from "classnames";
 import { Tabs } from "antd";

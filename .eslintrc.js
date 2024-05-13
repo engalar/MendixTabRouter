@@ -2,5 +2,5 @@ const base = require("@mendix/pluggable-widgets-tools/configs/eslint.ts.base.jso
 
 module.exports = {
     ...base,
-    extends: ["plugin:storybook/recommended"]
+    plugins: ["jest"]
 };
