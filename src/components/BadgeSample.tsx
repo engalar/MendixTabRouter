@@ -8,6 +8,7 @@ import { BadgeSampleProps } from "./BadgeSampleProps";
 
 export default function BadgeSample(props: BadgeSampleProps): ReactElement {
     const { className, style } = props;
+    const formMap = useRef<Map<string, any>>(new Map<string, any>());
 
     const ref = useRef<HTMLDivElement>(null);
     const [openPages, setOpenPages] = useState<string[]>([]);
@@ -73,6 +74,8 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
     );
 
     const onReady: OnReadyFunction = useCallback((page: string, form: any) => {
+        formMap.current.get(page)?.destroy();
+        formMap.current.set(page, form);
         ref.current?.querySelector(`.ant-tabs-tabpane.ant-tabs-tabpane-active`)!.appendChild(form.domNode);
         setItems(p => {
             const index = p.findIndex(item => item.key === page);
