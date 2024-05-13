@@ -1,16 +1,14 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import createExternal from "vite-plugin-external";
+import vitePluginMendix from "@engalar/vite-plugin-mendix";
+import pkg from "./package.json";
 
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [
-        createExternal({
-            interop: "auto",
-            externals: {
-                "dojo/aspect": "Aspect",
-            }
-        }),
-        react()
+        vitePluginMendix({
+            widgetName: pkg.widgetName,
+            widgetPackage: pkg.packagePath,
+            testProject: pkg.config.projectPath
+        })
     ]
 });

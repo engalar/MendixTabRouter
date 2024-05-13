@@ -1,6 +1,4 @@
-/* eslint-disable */
-// @ts-ignore
-import aspect from "dojo/aspect";
+const aspect = require("dojo/aspect");
 const old = mx.ui.openForm2;
 /**
  *
