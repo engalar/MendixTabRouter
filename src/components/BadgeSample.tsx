@@ -1,12 +1,17 @@
 // / <reference types="vite/client" />
-import React, { useState, ReactElement, createElement, useEffect, useCallback, useRef } from "react";
+import React, { useState, ReactElement, createElement, useEffect, useCallback, useRef, useMemo } from "react";
 import classNames from "classnames";
 import { Tabs } from "antd";
 
 import { usePatch } from "./usePatch";
 import { BadgeSampleProps } from "./BadgeSampleProps";
 
+function encodePage(page: string): string {
+    return page.replace(/\//g, "_").replace(/\./g, "_");
+}
+
 export default function BadgeSample(props: BadgeSampleProps): ReactElement {
+    const tabsId = useMemo(() => dijit.getUniqueId("tabs"), []);
     const { className, style } = props;
     const formMap = useRef<Map<string, any>>(new Map<string, any>());
 
@@ -55,15 +60,15 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
                     return p;
                 });
                 if (pageIndex >= 0) {
-                    setActiveKey(page);
+                    setActiveKey(encodePage(page));
 
                     // undefined will skip normal behavior
                     return "hit";
                 }
 
                 // create new tab
-                setItems((p: any[]) => [...p, { label: "", /* children: fragment, */ key: page }]);
-                setActiveKey(page);
+                setItems((p: any[]) => [...p, { label: "", /* children: fragment, */ key: encodePage(page) }]);
+                setActiveKey(encodePage(page));
                 setOpenPages((p: string[]) => [...p, page]);
                 // force rerender
 
@@ -76,9 +81,9 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
     const onReady: OnReadyFunction = useCallback((page: string, form: any) => {
         formMap.current.get(page)?.destroy();
         formMap.current.set(page, form);
-        ref.current?.querySelector(`.ant-tabs-tabpane.ant-tabs-tabpane-active`)!.appendChild(form.domNode);
+        ref.current?.querySelector(`#${tabsId}-panel-${encodePage(page)}`)!.appendChild(form.domNode);
         setItems(p => {
-            const index = p.findIndex(item => item.key === page);
+            const index = p.findIndex(item => item.key === encodePage(page));
             // change page label in p
             p[index].label = form.title;
             return index >= 0 ? [...p] : p;
@@ -130,6 +135,7 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
     return (
         <div ref={ref} className={classNames("widget-tabrouter", className)} style={style}>
             <Tabs
+                id={tabsId}
                 hideAdd
                 size="small"
                 onChange={onChange}

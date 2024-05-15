@@ -20,6 +20,16 @@ declare namespace mx {
         let getContentForm: any;
     }
 }
+declare namespace mendix {
+    interface Lang {
+        getUniqueId(): string;
+    }
+    let lang: Lang;
+}
+
+declare namespace dijit {
+    function getUniqueId(id: string): string;
+}
 
 /**
  * This is the type of the onReady function that can be passed to the openForm2 function.
