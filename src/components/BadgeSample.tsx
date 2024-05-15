@@ -5,6 +5,7 @@ import { Tabs } from "antd";
 
 import { usePatch } from "./usePatch";
 import { BadgeSampleProps } from "./BadgeSampleProps";
+import LoadingIcon from "./LoadingIcon";
 
 function encodePage(page: string): string {
     return page.replace(/\//g, "_").replace(/\./g, "_");
@@ -61,13 +62,20 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
                 });
                 if (pageIndex >= 0) {
                     setActiveKey(encodePage(page));
+                    setItems(p => {
+                        p[pageIndex].icon = <LoadingIcon />;
+                        return [...p];
+                    });
 
                     // undefined will skip normal behavior
                     return "hit";
                 }
 
                 // create new tab
-                setItems((p: any[]) => [...p, { label: "", /* children: fragment, */ key: encodePage(page) }]);
+                setItems((p: any[]) => [
+                    ...p,
+                    { label: "", /* children: fragment, */ key: encodePage(page), icon: <LoadingIcon /> }
+                ]);
                 setActiveKey(encodePage(page));
                 setOpenPages((p: string[]) => [...p, page]);
                 // force rerender
@@ -86,6 +94,7 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
             const index = p.findIndex(item => item.key === encodePage(page));
             // change page label in p
             p[index].label = form.title;
+            delete p[index].icon;
             return index >= 0 ? [...p] : p;
         });
         mx.ui.getContentForm().setSuspend(false);
