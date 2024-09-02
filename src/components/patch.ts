@@ -1,4 +1,5 @@
 const aspect = require("dojo/aspect");
+// import aspect from "dojo/aspect";
 const old = mx.ui.openForm2;
 /**
  *
@@ -8,7 +9,8 @@ const old = mx.ui.openForm2;
 export default function patch(peek: PeekFunction, onReady: OnReadyFunction) {
     const doPatch = () => {
         if (mx.ui.openForm2._tabRouter) {
-            throw new Error("TabRouter patch has already been applied");
+            // throw new Error("TabRouter patch has already been applied");
+            return;
         }
 
         async function newFun(
