@@ -1,5 +1,3 @@
-import aspect from "dojo/aspect";
-// import aspect from "dojo/aspect";
 const old = mx.ui.openForm2;
 const isRuntimeLoading = () => document.querySelector(".mx-incubator.mx-offscreen") == null;
 const isIncubatorReady = () =>
@@ -13,7 +11,7 @@ export default function patch(peek: PeekFunction, onReady: OnReadyFunction) {
     const doPatch = () => {
         if (mx.ui.openForm2._tabRouter) {
             // throw new Error("TabRouter patch has already been applied");
-            return;
+            return () => {};
         }
 
         async function newFun(

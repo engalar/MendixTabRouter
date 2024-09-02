@@ -3,6 +3,7 @@ import patch from "./patch";
 const peekSymbol = Symbol("usePatchPeek");
 const onReadySymbol = Symbol("usePatchOnReady");
 
+// for navigation by default home page
 patch(
     (page: string) => {
         // @ts-ignore
