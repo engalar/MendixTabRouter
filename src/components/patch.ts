@@ -1,6 +1,9 @@
-const aspect = require("dojo/aspect");
+import aspect from "dojo/aspect";
 // import aspect from "dojo/aspect";
 const old = mx.ui.openForm2;
+const isRuntimeLoading = () => document.querySelector(".mx-incubator.mx-offscreen") == null;
+const isIncubatorReady = () =>
+    !isRuntimeLoading() && document.querySelector(".mx-incubator.mx-offscreen")!.childElementCount === 0;
 /**
  *
  * @param cb
@@ -27,6 +30,24 @@ export default function patch(peek: PeekFunction, onReady: OnReadyFunction) {
                     return old(page, disposeObj, title, currentForm, option, numberOfPagesToClose);
                 case "hit":
                 case "miss":
+                    if (isRuntimeLoading()) {
+                        // post origin task
+                        const doNext = () => {
+                            if (!isIncubatorReady()) {
+                                setTimeout(() => {
+                                    doNext();
+                                }, 500);
+                                return;
+                            }
+                            mx.ui.openForm2(page, disposeObj, title, currentForm, option, numberOfPagesToClose);
+                        };
+                        // schedule next task
+                        setTimeout(() => {
+                            doNext();
+                        }, 500);
+                        // navigate to router page
+                        return old("Module/Page_Router.page.xml", disposeObj, title, currentForm, option, 0);
+                    }
                     option.location = "node";
                     option.domNode = document.querySelector(".mx-incubator.mx-offscreen")!;
                     const form = await old(page, disposeObj, title, currentForm, option, numberOfPagesToClose);
@@ -38,14 +59,8 @@ export default function patch(peek: PeekFunction, onReady: OnReadyFunction) {
         mx.ui.openForm2 = newFun;
     };
 
-    let afterHandle: any = null;
-    if (document.querySelector(".mx-incubator.mx-offscreen")!.childElementCount === 0) {
-        doPatch();
-    } else {
-        afterHandle = aspect.after(mx.ui.getContentForm(), "onNavigation", doPatch);
-    }
+    doPatch();
     return () => {
-        afterHandle?.remove();
         mx.ui.openForm2 = old;
     };
 }
