@@ -1,7 +1,5 @@
 const old = mx.ui.openForm2;
-const isRuntimeLoading = () => document.querySelector(".mx-incubator.mx-offscreen") == null;
-const isIncubatorReady = () =>
-    !isRuntimeLoading() && document.querySelector(".mx-incubator.mx-offscreen")!.childElementCount === 0;
+
 /**
  *
  * @param cb
@@ -28,24 +26,6 @@ export default function patch(peek: PeekFunction, onReady: OnReadyFunction) {
                     return old(page, disposeObj, title, currentForm, option, numberOfPagesToClose);
                 case "hit":
                 case "miss":
-                    if (isRuntimeLoading()) {
-                        // post origin task
-                        const doNext = () => {
-                            if (!isIncubatorReady()) {
-                                setTimeout(() => {
-                                    doNext();
-                                }, 500);
-                                return;
-                            }
-                            mx.ui.openForm2(page, disposeObj, title, currentForm, option, numberOfPagesToClose);
-                        };
-                        // schedule next task
-                        setTimeout(() => {
-                            doNext();
-                        }, 500);
-                        // navigate to router page
-                        return old("Module/Page_Router.page.xml", disposeObj, title, currentForm, option, 0);
-                    }
                     option.location = "node";
                     option.domNode = document.querySelector(".mx-incubator.mx-offscreen")!;
                     const form = await old(page, disposeObj, title, currentForm, option, numberOfPagesToClose);
