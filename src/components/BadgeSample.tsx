@@ -20,6 +20,7 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
     const [openPages, setOpenPages] = useState<string[]>([]);
     const [activeKey, setActiveKey] = useState<string>();
     const [items, setItems] = useState<any[]>([]);
+    const itemsRef = useRef<any[]>([]);
     useEffect(() => {
         const cf = mx.ui.getContentForm();
         cf.closePage = async function closePage(
@@ -36,7 +37,8 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
                 });
                 setItems(p => {
                     numberOfPagesToClose -= p.splice(-numberOfPagesToClose, numberOfPagesToClose).length;
-                    return [...p];
+                    itemsRef.current = [...p];
+                    return itemsRef.current;
                 });
             }
             // cf.setSuspend(false);
@@ -52,7 +54,8 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
 
     const peek: PeekFunction = useCallback(
         (page: string) => {
-            if (!page.startsWith(props.prefixValue)) {
+            // FIXME: 硬编码
+            if (page.startsWith("ModuleLtcView/Login")) {
                 return "skip";
             } else {
                 let pageIndex = -1;
@@ -64,7 +67,8 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
                     setActiveKey(encodePage(page));
                     setItems(p => {
                         p[pageIndex].icon = <LoadingIcon />;
-                        return [...p];
+                        itemsRef.current = [...p];
+                        return itemsRef.current;
                     });
 
                     // undefined will skip normal behavior
@@ -72,10 +76,13 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
                 }
 
                 // create new tab
-                setItems((p: any[]) => [
-                    ...p,
-                    { label: "", /* children: fragment, */ key: encodePage(page), icon: <LoadingIcon /> }
-                ]);
+                setItems((p: any[]) => {
+                    itemsRef.current = [
+                        ...p,
+                        { label: "", /* children: fragment, */ key: encodePage(page), icon: <LoadingIcon /> }
+                    ];
+                    return itemsRef.current;
+                });
                 setActiveKey(encodePage(page));
                 setOpenPages((p: string[]) => [...p, page]);
                 // force rerender
@@ -84,6 +91,43 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
             }
         },
         [props.prefixValue]
+    );
+
+    const onEdit = useCallback(
+        (page: React.MouseEvent | React.KeyboardEvent | string, action: "add" | "remove") => {
+            //page=TestMachineApplication_TestMachineApplication_View_page_xml
+            if (action === "add") {
+                // add();
+            } else {
+                // remove
+                let newActiveKey = activeKey;
+                let lastIndex = -1;
+                itemsRef.current.forEach((item, i) => {
+                    if (item.key === page) {
+                        lastIndex = i - 1;
+                    }
+                });
+
+                const removeIndex = itemsRef.current.findIndex(item => item.key === page);
+                if (removeIndex >= 0) {
+                    openPages.splice(removeIndex, 1);
+                    setOpenPages(openPages);
+                }
+
+                const newPanes = itemsRef.current.filter(item => item.key !== page);
+                if (newPanes.length && newActiveKey === page) {
+                    if (lastIndex >= 0) {
+                        newActiveKey = newPanes[lastIndex].key;
+                    } else {
+                        newActiveKey = newPanes[0].key;
+                    }
+                }
+                setItems(newPanes);
+                itemsRef.current = newPanes;
+                setActiveKey(newActiveKey);
+            }
+        },
+        [activeKey, items, openPages]
     );
 
     const onReady: OnReadyFunction = useCallback((page: string, form: any) => {
@@ -95,51 +139,26 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
             // change page label in p
             p[index].label = form.title;
             delete p[index].icon;
-            return index >= 0 ? [...p] : p;
+            const preDisp = p[index].disp;
+            if (preDisp) {
+                preDisp();
+                delete p[index].disp;
+            }
+            const disp = form.listen('close', () => {
+                onEdit(encodePage(page), 'remove');
+            });
+            p[index].disp = disp;
+            itemsRef.current = index >= 0 ? [...p] : p;
+            return itemsRef.current;
         });
         mx.ui.getContentForm().setSuspend(false);
-    }, []);
+    }, [onEdit]);
 
     usePatch(peek, onReady);
 
     const onChange = (newActiveKey: string): void => {
         setActiveKey(newActiveKey);
     };
-
-    const onEdit = useCallback(
-        (targetKey: React.MouseEvent | React.KeyboardEvent | string, action: "add" | "remove") => {
-            if (action === "add") {
-                // add();
-            } else {
-                // remove
-                let newActiveKey = activeKey;
-                let lastIndex = -1;
-                items.forEach((item, i) => {
-                    if (item.key === targetKey) {
-                        lastIndex = i - 1;
-                    }
-                });
-
-                const removeIndex = items.findIndex(item => item.key === targetKey);
-                if (removeIndex >= 0) {
-                    openPages.splice(removeIndex, 1);
-                    setOpenPages(openPages);
-                }
-
-                const newPanes = items.filter(item => item.key !== targetKey);
-                if (newPanes.length && newActiveKey === targetKey) {
-                    if (lastIndex >= 0) {
-                        newActiveKey = newPanes[lastIndex].key;
-                    } else {
-                        newActiveKey = newPanes[0].key;
-                    }
-                }
-                setItems(newPanes);
-                setActiveKey(newActiveKey);
-            }
-        },
-        [activeKey, items, openPages]
-    );
 
     return (
         <div ref={ref} className={classNames("widget-tabrouter", className)} style={style}>
