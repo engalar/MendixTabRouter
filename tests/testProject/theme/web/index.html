@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+
+<head>
+    {{unsupportedbrowser}}
+    <meta charset="utf-8">
+    <title>Mendix</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{themecss}}
+    {{appicons}}
+    {{manifest}}
+    {{startupimages}}
+</head>
+
+<body dir="ltr">
+    <noscript>To use this application, please enable JavaScript.</noscript>
+    <div id="content"></div>
+    <script>
+        dojoConfig = {
+            isDebug: false,
+            useCustomLogger: true,
+            async: true,
+            baseUrl: "mxclientsystem/dojo/",
+            cacheBust: "{{cachebust}}",
+            rtlRedirect: "index-rtl.html"
+        };
+    </script>
+    <script>
+        if (!document.cookie || !document.cookie.match(/(^|;) *originURI=/gi))
+            document.cookie = "originURI=/login.html" + (window.location.protocol === "https:" ? ";SameSite=None;Secure" : "");
+    </script>
+    <script>
+        let originalMx;
+        Object.defineProperty(window, "mx", {
+            get() {
+                return originalMx;
+            },
+            set(newValue) {
+                newValue._startup = newValue.startup;
+                newValue.startup = async () => {/* await new Promise((resolve, reject) => {
+          require(["dojo/aspect"], Aspect => {
+              window.Aspect = Aspect;
+              resolve();
+          });
+      }); */
+                }
+                    ;
+                originalMx = newValue;
+            },
+            configurable: true
+        });
+    </script>
+    <script src="mxclientsystem/mxui/mxui.js?638609770168632355"></script>
+    <script>
+        const oldFn = mx.ui.openForm2;
+        const isRuntimeLoading = () => document.querySelector(".mx-incubator.mx-offscreen") == null;
+        const isIncubatorReady = () =>
+            !isRuntimeLoading() && document.querySelector(".mx-incubator.mx-offscreen").childElementCount === 0;
+        async function newFun(
+            page,
+            disposeObj,
+            title,
+            currentForm,
+            option,
+            numberOfPagesToClose
+        ) {
+            if (mx.ui.openForm2 == newFun) {
+                // tabRouter not loaded yet
+                // post origin task
+                const doNext = () => {
+                    if (!isIncubatorReady()) {
+                        setTimeout(() => {
+                            doNext();
+                        }, 500);
+                        return;
+                    }
+                    // give tabRouter a change
+                    mx.ui.openForm2(page, disposeObj, title, currentForm, option, numberOfPagesToClose);
+                };
+                // schedule next task
+                setTimeout(() => {
+                    doNext();
+                }, 500);
+                // load tabRouter layout page first
+                return oldFn("Module/Page_Router.page.xml", disposeObj, title, mx.ui.getContentForm(), option, 0);
+            } else {
+                // pass to old fn
+                return oldFn(page, disposeObj, title, currentForm, option, numberOfPagesToClose);
+            }
+        }
+        mx.ui.openForm2 = newFun;
+    </script>
+    <script>
+        mx._startup()
+    </script>>
+</body>
+
+</html>

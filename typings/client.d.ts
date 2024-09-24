@@ -36,7 +36,7 @@ declare namespace dijit {
  * @param page The name of the page that was opened.
  * @param form The form that was opened. If undefined, the page was opened yet before.
  */
-type OnReadyFunction = (page: string, form?: any) => void;
+type OnReadyFunction = (page: string, form?: any, option?: any) => void;
 
 type PeekFunction = (page: string) => "skip" | "miss" | "hit";
 

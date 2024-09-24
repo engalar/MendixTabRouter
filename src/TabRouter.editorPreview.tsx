@@ -30,5 +30,5 @@ export function preview(props: TabRouterPreviewProps): ReactElement {
 }
 
 export function getPreviewCss(): string {
-    return require("./ui/TabRouter.css");
+    return require("./ui/TabRouter.scss");
 }

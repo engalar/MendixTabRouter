@@ -10,7 +10,7 @@
   },
   "license": "all right reserve",
   "config": {
-    "projectPath": "./tests/testProject",
+    "projectPath": "C:/Users/admin/Desktop/ltcProject",
     "mendixHost": "http://localhost:8080",
     "developmentPort": 3000
   },

@@ -1,14 +1,16 @@
-const aspect = require("dojo/aspect");
 const old = mx.ui.openForm2;
+
 /**
  *
  * @param cb
  * @returns null fallback to original function, undefined skip, else render to domNode
  */
 export default function patch(peek: PeekFunction, onReady: OnReadyFunction) {
+
     const doPatch = () => {
         if (mx.ui.openForm2._tabRouter) {
-            throw new Error("TabRouter patch has already been applied");
+            // throw new Error("TabRouter patch has already been applied");
+            return () => {};
         }
 
         async function newFun(
@@ -19,6 +21,22 @@ export default function patch(peek: PeekFunction, onReady: OnReadyFunction) {
             option: mx.ui.Option,
             numberOfPagesToClose: number
         ) {
+            const pageMetaUrl = mx.appUrl + 'pages/zh_CN/'+page+'?'+ mx.session.sessionData.cachebust
+            // fetch pageMetaUrl and get xml content
+            const response = await fetch(pageMetaUrl);
+            const xmlData = await response.text();
+            const match = xmlData.match(/<m:layout\s+path='([^']+)'/);
+            const popupList = [
+                'Atlas_Core/PopupLayout', 
+                'DeepLink/ModalPopupLayout', 
+                'BizzomateTokenReplacer/BizzomateTokenReplacer_Popup',
+                'Encryption/PopupLayout',
+                'MxModelReflection/PopupLayout'
+            ]
+            if (match && popupList.map(d=>d+'.layout.xml').includes(match[1])) {
+                return old(page, disposeObj, title, currentForm, option, numberOfPagesToClose);
+            }
+            // reg extract
             const state = peek(page);
             switch (state) {
                 case "skip":
@@ -28,7 +46,7 @@ export default function patch(peek: PeekFunction, onReady: OnReadyFunction) {
                     option.location = "node";
                     option.domNode = document.querySelector(".mx-incubator.mx-offscreen")!;
                     const form = await old(page, disposeObj, title, currentForm, option, numberOfPagesToClose);
-                    onReady(page, form);
+                    onReady(page, form, option);
                     return form;
             }
         }
@@ -36,14 +54,8 @@ export default function patch(peek: PeekFunction, onReady: OnReadyFunction) {
         mx.ui.openForm2 = newFun;
     };
 
-    let afterHandle: any = null;
-    if (document.querySelector(".mx-incubator.mx-offscreen")!.childElementCount === 0) {
-        doPatch();
-    } else {
-        afterHandle = aspect.after(mx.ui.getContentForm(), "onNavigation", doPatch);
-    }
+    doPatch();
     return () => {
-        afterHandle?.remove();
         mx.ui.openForm2 = old;
     };
 }

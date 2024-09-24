@@ -47,6 +47,11 @@ public class Microflows
 		IMendixObject result = (IMendixObject)Core.microflowCall("Module.DS_Entity").withParams(params).execute(context);
 		return result == null ? null : module.proxies.Entity.initialize(context, result);
 	}
+	public static void microflow(IContext context)
+	{
+		Map<java.lang.String, Object> params = new HashMap<>();
+		Core.microflowCall("Module.Microflow").withParams(params).execute(context);
+	}
 	public static void nav_TabRouter_With_Tab2(IContext context)
 	{
 		Map<java.lang.String, Object> params = new HashMap<>();
