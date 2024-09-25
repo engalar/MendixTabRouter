@@ -103,8 +103,8 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
     );
 
     const onChange = (newActiveKey: string|undefined): void => {
-        setActiveKey(newActiveKey);
         setPageTitle(items.find(item => item.key === newActiveKey)?.label);
+        // itemsRef
         setItems(items => {
             items.forEach(item => {
                 if (item.key !== newActiveKey) {
@@ -115,6 +115,7 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
             });
             return items
         });
+        setActiveKey(newActiveKey);
     };
 
     const onEdit = useCallback(

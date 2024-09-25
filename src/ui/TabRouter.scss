@@ -9,6 +9,13 @@
 
         .ant-tabs-nav {
             padding-top: 8px;
+            
+            .ant-tabs-nav-list {
+                .ant-tabs-tab {
+                    user-select: none;
+                    margin-left: 10px;
+                }
+            }
         }
 
         .ant-tabs-content-holder {
