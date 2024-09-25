@@ -63,6 +63,9 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
 
     const peek: PeekFunction = useCallback(
         (page: string) => {
+            if (page.endsWith("_Redirect.page.xml")) {
+                return "hit";
+            }
             if (page.startsWith("ModuleLtcView/Login")) {
                 return "skip";
             } else {
@@ -164,6 +167,10 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
     }
 
     const onReady: OnReadyFunction = useCallback((page: string, form: any, option: any) => {
+        if (page.endsWith("_Redirect.page.xml")) {
+            form.destroy();
+            return;
+        }
         formMap.current.get(page)?.destroy();
         formMap.current.set(page, form);
         ref.current?.querySelector(`#${tabsId}-panel-${encodePage(page)}`)!.appendChild(form.domNode);

@@ -19,6 +19,10 @@ declare namespace mx {
 
         let getContentForm: any;
     }
+    namespace session {
+        let sessionData: any;
+    }
+    let appUrl: string;
 }
 declare namespace mendix {
     interface Lang {

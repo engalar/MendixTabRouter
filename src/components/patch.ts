@@ -31,7 +31,8 @@ export default function patch(peek: PeekFunction, onReady: OnReadyFunction) {
                 'DeepLink/ModalPopupLayout', 
                 'BizzomateTokenReplacer/BizzomateTokenReplacer_Popup',
                 'Encryption/PopupLayout',
-                'MxModelReflection/PopupLayout'
+                'MxModelReflection/PopupLayout',
+                'MxModelReflection/ModelReflectionPopup'
             ]
             if (match && popupList.map(d=>d+'.layout.xml').includes(match[1])) {
                 return old(page, disposeObj, title, currentForm, option, numberOfPagesToClose);
