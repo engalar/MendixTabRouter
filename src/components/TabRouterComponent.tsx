@@ -8,6 +8,8 @@ import { TabRouterComponentProps } from "./TabRouterComponentProps";
 import LoadingIcon from "./LoadingIcon";
 import { useDependency } from "@wendellhu/redi/esm/react-bindings/reactHooks";
 import { PlatformService } from "../api/PlatformService";
+import { TabModel } from "src/model/TabModel";
+import { useObservable } from "rxjs-hooks";
 
 /**
  * transform page name
@@ -22,6 +24,8 @@ export default function TabRouterComponent(props: TabRouterComponentProps): Reac
     const platformService = useDependency(PlatformService);
     // demo usage
     console.log(platformService.prefixValue);
+    const tabModel = useDependency(TabModel);
+    const title = useObservable(() => tabModel.title$);
 
     const tabsId = useMemo(() => dijit.getUniqueId("tabs"), []);
     const { className, style } = props;
@@ -64,14 +68,6 @@ export default function TabRouterComponent(props: TabRouterComponentProps): Reac
         };
     }, []);
 
-    const setPageTitle = (title: string): void => {
-        document.title = `LTC-${title}`;
-        const titleElement = document.querySelector(".pagetitleltc");
-        if (titleElement) {
-            titleElement.innerHTML = title;
-        }
-    };
-
     const peek: PeekFunction = useCallback((page: string) => {
         if (page.endsWith("_Redirect.page.xml")) {
             return "hit";
@@ -111,7 +107,7 @@ export default function TabRouterComponent(props: TabRouterComponentProps): Reac
     }, []);
 
     const onChange = (newActiveKey: string | undefined): void => {
-        setPageTitle(items.find(item => item.key === newActiveKey)?.label);
+        tabModel.title$.next(items.find(item => item.key === newActiveKey)?.label);
         // itemsRef
         setItems(items => {
             items.forEach(item => {
@@ -219,7 +215,7 @@ export default function TabRouterComponent(props: TabRouterComponentProps): Reac
                 itemsRef.current = index >= 0 ? [...p] : p;
                 return itemsRef.current;
             });
-            setPageTitle(form.title);
+            tabModel.title$.next(form.title);
             mx.ui.getContentForm().setSuspend(false);
         },
         [onEdit]
@@ -243,24 +239,3 @@ export default function TabRouterComponent(props: TabRouterComponentProps): Reac
         </div>
     );
 }
-
-/* export class TabModel {
-    private activeKey: string;
-    // activeKey change event
-    private onChange: (key: string) => void;
-    private items: FormModel[] = [];
-    private onEdit: (key: string, action: "add" | "remove") => void;
-}
-
-export class FormModel {
-    // page name
-    private page: string;
-    // page key
-    private key: string;
-    // isActive
-    private isActive: boolean;
-    // title
-    private title: string;
-    // mx form
-    private mxForm: any;
-} */

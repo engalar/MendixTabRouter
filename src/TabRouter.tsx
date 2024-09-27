@@ -6,10 +6,18 @@ import "./ui/TabRouter.scss";
 import { Injector } from "@wendellhu/redi";
 import { connectInjector } from "@wendellhu/redi/react-bindings";
 import { PlatformService } from "./api/PlatformService";
+import { TabModel } from "./model/TabModel";
+import UpdateTitle from "./feature/UpdateTitle";
 
 export function TabRouter(props: TabRouterContainerProps): ReactElement {
     const [injector, App] = useMemo(() => {
-        const injector = new Injector([[PlatformService, { useValue: new PlatformService(props.prefixValue) }]]);
+        const injector = new Injector([
+            [PlatformService, { useValue: new PlatformService(props.prefixValue) }],
+            [TabModel]
+        ]);
+        // initialize
+        injector.get(UpdateTitle);
+
         const App = connectInjector(() => <TabRouterComponent className={props.class} style={props.style} />, injector);
         return [injector, App];
     }, []);

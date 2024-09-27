@@ -48,7 +48,9 @@
   "dependencies": {
     "@wendellhu/redi": "^0.16.1",
     "antd": "^5.16.4",
-    "classnames": "^2.2.6"
+    "classnames": "^2.2.6",
+    "rxjs": "^7.8.1",
+    "rxjs-hooks": "^0.8.0-alpha.0"
   },
   "resolutions": {
     "react": "18.2.0",
