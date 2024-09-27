@@ -42,7 +42,13 @@ declare namespace dijit {
  */
 type OnReadyFunction = (page: string, form?: any, option?: any) => void;
 
-type PeekFunction = (page: string) => "skip" | "miss" | "hit";
+/**
+ * hit 已经存在
+ * miss 不存在
+ * skip 跳过
+ */
+type PeekFunction = (page: string) => PeekResult;
+type PeekResult = "hit" | "skip" | "miss";
 
 // close page function
 

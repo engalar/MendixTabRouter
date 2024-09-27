@@ -8,12 +8,14 @@ import { connectInjector } from "@wendellhu/redi/react-bindings";
 import { PlatformService } from "./api/PlatformService";
 import { TabModel } from "./model/TabModel";
 import UpdateTitle from "./feature/UpdateTitle";
+import { PeekService } from "./feature/Peek";
 
 export function TabRouter(props: TabRouterContainerProps): ReactElement {
     const [injector, App] = useMemo(() => {
         const injector = new Injector([
             [PlatformService, { useValue: new PlatformService(props.prefixValue) }],
-            [TabModel]
+            [TabModel],
+            [PeekService]
         ]);
         // initialize
         injector.get(UpdateTitle);

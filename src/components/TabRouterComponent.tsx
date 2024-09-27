@@ -10,6 +10,7 @@ import { useDependency } from "@wendellhu/redi/esm/react-bindings/reactHooks";
 import { PlatformService } from "../api/PlatformService";
 import { TabModel } from "src/model/TabModel";
 import { useObservable } from "rxjs-hooks";
+import { PeekService } from "src/feature/Peek";
 
 /**
  * transform page name
@@ -25,6 +26,7 @@ export default function TabRouterComponent(props: TabRouterComponentProps): Reac
     // demo usage
     console.log(platformService.prefixValue);
     const tabModel = useDependency(TabModel);
+    const peekService = useDependency(PeekService);
     const title = useObservable(() => tabModel.title$);
 
     const tabsId = useMemo(() => dijit.getUniqueId("tabs"), []);
@@ -32,7 +34,6 @@ export default function TabRouterComponent(props: TabRouterComponentProps): Reac
     const formMap = useRef<Map<string, any>>(new Map<string, any>());
 
     const ref = useRef<HTMLDivElement>(null);
-    const [openPages, setOpenPages] = useState<string[]>([]);
     const [activeKey, setActiveKey] = useState<string>();
     const [items, setItems] = useState<any[]>([]);
     const itemsRef = useRef<any[]>([]);
@@ -45,17 +46,7 @@ export default function TabRouterComponent(props: TabRouterComponentProps): Reac
             hasPendingOpen: boolean
         ) {
             if (numberOfPagesToClose > 0) {
-                // close tab page in openPages and items
-                setOpenPages(p => {
-                    p.splice(-numberOfPagesToClose, numberOfPagesToClose);
-                    setActiveKey(p[p.length - 1]);
-                    return [...p];
-                });
-                setItems(p => {
-                    numberOfPagesToClose -= p.splice(-numberOfPagesToClose, numberOfPagesToClose).length;
-                    itemsRef.current = [...p];
-                    return itemsRef.current;
-                });
+                numberOfPagesToClose = tabModel.doClose(numberOfPagesToClose);
             }
             // cf.setSuspend(false);
             if (numberOfPagesToClose > 0) {
@@ -68,48 +59,9 @@ export default function TabRouterComponent(props: TabRouterComponentProps): Reac
         };
     }, []);
 
-    const peek: PeekFunction = useCallback((page: string) => {
-        if (page.endsWith("_Redirect.page.xml")) {
-            return "hit";
-        }
-        if (page.startsWith("ModuleLtcView/Login")) {
-            return "skip";
-        } else {
-            let pageIndex = -1;
-            setOpenPages(p => {
-                pageIndex = p.findIndex(item => item === page);
-                return p;
-            });
-            if (pageIndex >= 0) {
-                setActiveKey(encodePage(page));
-                setItems(p => {
-                    p[pageIndex].icon = <LoadingIcon />;
-                    itemsRef.current = [...p];
-                    return itemsRef.current;
-                });
-                // undefined will skip normal behavior
-                return "hit";
-            }
-
-            // create new tab
-            setItems((p: any[]) => {
-                itemsRef.current = [
-                    ...p,
-                    { label: "", /* children: fragment, */ key: encodePage(page), icon: <LoadingIcon /> }
-                ];
-                return itemsRef.current;
-            });
-            setActiveKey(encodePage(page));
-            setOpenPages((p: string[]) => [...p, page]);
-            // force rerender
-            return "miss";
-        }
-    }, []);
-
     const onChange = (newActiveKey: string | undefined): void => {
-        tabModel.title$.next(items.find(item => item.key === newActiveKey)?.label);
         // itemsRef
-        setItems(items => {
+        /* setItems(items => {
             items.forEach(item => {
                 if (item.key !== newActiveKey) {
                     delete item.icon;
@@ -120,8 +72,8 @@ export default function TabRouterComponent(props: TabRouterComponentProps): Reac
                 }
             });
             return items;
-        });
-        setActiveKey(newActiveKey);
+        }); */
+        tabModel.activeKey$.next(newActiveKey);
     };
 
     const onEdit = useCallback(
@@ -155,11 +107,10 @@ export default function TabRouterComponent(props: TabRouterComponentProps): Reac
                 }
                 setItems(newPanes);
                 itemsRef.current = newPanes;
-                setOpenPages(itemsRef.current.map(item => item.page));
                 onChange(newActiveKey);
             }
         },
-        [activeKey, items, openPages]
+        [activeKey, items]
     );
 
     const refreshFn = (key: string): void => {
@@ -215,13 +166,13 @@ export default function TabRouterComponent(props: TabRouterComponentProps): Reac
                 itemsRef.current = index >= 0 ? [...p] : p;
                 return itemsRef.current;
             });
-            tabModel.title$.next(form.title);
+            tabModel.activeKey$.next(encodePage(page));
             mx.ui.getContentForm().setSuspend(false);
         },
         [onEdit]
     );
 
-    usePatch(peek, onReady);
+    usePatch(peekService.peek, onReady);
 
     // https://ant.design/components/tabs-cn#tabitemtype
     return (
