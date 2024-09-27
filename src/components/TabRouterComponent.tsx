@@ -6,6 +6,8 @@ import Tabs from "antd/es/tabs";
 import { usePatch } from "../hooks/usePatch";
 import { TabRouterComponentProps } from "./TabRouterComponentProps";
 import LoadingIcon from "./LoadingIcon";
+import { useDependency } from "@wendellhu/redi/esm/react-bindings/reactHooks";
+import { PlatformService } from "../api/PlatformService";
 
 /**
  * transform page name
@@ -17,6 +19,10 @@ function encodePage(page: string): string {
 }
 
 export default function TabRouterComponent(props: TabRouterComponentProps): ReactElement {
+    const platformService = useDependency(PlatformService);
+    // demo usage
+    console.log(platformService.prefixValue);
+
     const tabsId = useMemo(() => dijit.getUniqueId("tabs"), []);
     const { className, style } = props;
     const formMap = useRef<Map<string, any>>(new Map<string, any>());
@@ -66,46 +72,43 @@ export default function TabRouterComponent(props: TabRouterComponentProps): Reac
         }
     };
 
-    const peek: PeekFunction = useCallback(
-        (page: string) => {
-            if (page.endsWith("_Redirect.page.xml")) {
-                return "hit";
-            }
-            if (page.startsWith("ModuleLtcView/Login")) {
-                return "skip";
-            } else {
-                let pageIndex = -1;
-                setOpenPages(p => {
-                    pageIndex = p.findIndex(item => item === page);
-                    return p;
-                });
-                if (pageIndex >= 0) {
-                    setActiveKey(encodePage(page));
-                    setItems(p => {
-                        p[pageIndex].icon = <LoadingIcon />;
-                        itemsRef.current = [...p];
-                        return itemsRef.current;
-                    });
-                    // undefined will skip normal behavior
-                    return "hit";
-                }
-
-                // create new tab
-                setItems((p: any[]) => {
-                    itemsRef.current = [
-                        ...p,
-                        { label: "", /* children: fragment, */ key: encodePage(page), icon: <LoadingIcon /> }
-                    ];
+    const peek: PeekFunction = useCallback((page: string) => {
+        if (page.endsWith("_Redirect.page.xml")) {
+            return "hit";
+        }
+        if (page.startsWith("ModuleLtcView/Login")) {
+            return "skip";
+        } else {
+            let pageIndex = -1;
+            setOpenPages(p => {
+                pageIndex = p.findIndex(item => item === page);
+                return p;
+            });
+            if (pageIndex >= 0) {
+                setActiveKey(encodePage(page));
+                setItems(p => {
+                    p[pageIndex].icon = <LoadingIcon />;
+                    itemsRef.current = [...p];
                     return itemsRef.current;
                 });
-                setActiveKey(encodePage(page));
-                setOpenPages((p: string[]) => [...p, page]);
-                // force rerender
-                return "miss";
+                // undefined will skip normal behavior
+                return "hit";
             }
-        },
-        [props.prefixValue]
-    );
+
+            // create new tab
+            setItems((p: any[]) => {
+                itemsRef.current = [
+                    ...p,
+                    { label: "", /* children: fragment, */ key: encodePage(page), icon: <LoadingIcon /> }
+                ];
+                return itemsRef.current;
+            });
+            setActiveKey(encodePage(page));
+            setOpenPages((p: string[]) => [...p, page]);
+            // force rerender
+            return "miss";
+        }
+    }, []);
 
     const onChange = (newActiveKey: string | undefined): void => {
         setPageTitle(items.find(item => item.key === newActiveKey)?.label);
@@ -224,6 +227,7 @@ export default function TabRouterComponent(props: TabRouterComponentProps): Reac
 
     usePatch(peek, onReady);
 
+    // https://ant.design/components/tabs-cn#tabitemtype
     return (
         <div ref={ref} className={classNames("widget-tabrouter", className)} style={style}>
             <Tabs
@@ -239,3 +243,24 @@ export default function TabRouterComponent(props: TabRouterComponentProps): Reac
         </div>
     );
 }
+
+/* export class TabModel {
+    private activeKey: string;
+    // activeKey change event
+    private onChange: (key: string) => void;
+    private items: FormModel[] = [];
+    private onEdit: (key: string, action: "add" | "remove") => void;
+}
+
+export class FormModel {
+    // page name
+    private page: string;
+    // page key
+    private key: string;
+    // isActive
+    private isActive: boolean;
+    // title
+    private title: string;
+    // mx form
+    private mxForm: any;
+} */
