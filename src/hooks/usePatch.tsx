@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import patch from "./patch";
+import patch from "../components/patch";
 
 /**
  * page -> domNode or form or null

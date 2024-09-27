@@ -1,6 +1,6 @@
 import { CSSProperties } from "react";
 
-export interface BadgeSampleProps {
+export interface TabRouterComponentProps {
     className?: string;
     prefixValue: string;
     style?: CSSProperties;

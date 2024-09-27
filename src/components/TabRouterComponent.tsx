@@ -3,15 +3,20 @@ import React, { useState, ReactElement, createElement, useEffect, useCallback, u
 import classNames from "classnames";
 import Tabs from "antd/es/tabs";
 
-import { usePatch } from "./usePatch";
-import { BadgeSampleProps } from "./BadgeSampleProps";
+import { usePatch } from "../hooks/usePatch";
+import { TabRouterComponentProps } from "./TabRouterComponentProps";
 import LoadingIcon from "./LoadingIcon";
 
+/**
+ * transform page name
+ * @param page page qualified name <ModuleName>/<PageName>
+ * @returns key <ModuleName>/<PageName> -> <ModuleName>_<PageName>
+ */
 function encodePage(page: string): string {
     return page.replace(/\//g, "_").replace(/\./g, "_");
 }
 
-export default function BadgeSample(props: BadgeSampleProps): ReactElement {
+export default function TabRouterComponent(props: TabRouterComponentProps): ReactElement {
     const tabsId = useMemo(() => dijit.getUniqueId("tabs"), []);
     const { className, style } = props;
     const formMap = useRef<Map<string, any>>(new Map<string, any>());

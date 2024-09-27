@@ -2,8 +2,8 @@ import { ReactElement, createElement } from "react";
 
 import { parseInlineStyle } from "@mendix/pluggable-widgets-tools";
 
-import BadgeSample from "./components/BadgeSample";
-import { BadgeSampleProps } from "./components/BadgeSampleProps";
+import TabRouterComponent from "./components/TabRouterComponent";
+import { TabRouterComponentProps } from "./components/TabRouterComponentProps";
 import { TabRouterPreviewProps } from "../typings/TabRouterProps";
 
 function parentInline(node?: HTMLElement | null): void {
@@ -13,7 +13,7 @@ function parentInline(node?: HTMLElement | null): void {
     }
 }
 
-function transformProps(props: TabRouterPreviewProps): BadgeSampleProps {
+function transformProps(props: TabRouterPreviewProps): TabRouterComponentProps {
     return {
         className: props.className,
         style: parseInlineStyle(props.style),
@@ -24,7 +24,7 @@ function transformProps(props: TabRouterPreviewProps): BadgeSampleProps {
 export function preview(props: TabRouterPreviewProps): ReactElement {
     return (
         <div ref={parentInline}>
-            <BadgeSample {...transformProps(props)}></BadgeSample>
+            <TabRouterComponent {...transformProps(props)}></TabRouterComponent>
         </div>
     );
 }

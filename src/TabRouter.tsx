@@ -1,11 +1,11 @@
 import { ReactElement, createElement } from "react";
 
 import { TabRouterContainerProps } from "../typings/TabRouterProps";
-import BadgeSample from "./components/BadgeSample";
+import TabRouterComponent from "./components/TabRouterComponent";
 import "./ui/TabRouter.scss";
 
 export function TabRouter(props: TabRouterContainerProps): ReactElement {
     const { prefixValue, style } = props;
 
-    return <BadgeSample className={props.class} style={style} prefixValue={prefixValue} />;
+    return <TabRouterComponent className={props.class} style={style} prefixValue={prefixValue} />;
 }

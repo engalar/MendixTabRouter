@@ -46,6 +46,7 @@
     "vite": "^5.2.10"
   },
   "dependencies": {
+    "@wendellhu/redi": "^0.16.1",
     "antd": "^5.16.4",
     "classnames": "^2.2.6"
   },
