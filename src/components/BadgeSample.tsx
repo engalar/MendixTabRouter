@@ -102,45 +102,47 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
         [props.prefixValue]
     );
 
-    const onChange = (newActiveKey: string|undefined): void => {
+    const onChange = (newActiveKey: string | undefined): void => {
         setPageTitle(items.find(item => item.key === newActiveKey)?.label);
         // itemsRef
         setItems(items => {
             items.forEach(item => {
                 if (item.key !== newActiveKey) {
-                    delete item.icon
+                    delete item.icon;
                 } else {
-                    item.icon = <span className="mx-icon-lined mx-icon-refresh" onClick={() => refreshFn(item.key)}></span>;
+                    item.icon = (
+                        <span className="mx-icon-lined mx-icon-refresh" onClick={() => refreshFn(item.key)}></span>
+                    );
                 }
             });
-            return items
+            return items;
         });
         setActiveKey(newActiveKey);
     };
 
     const onEdit = useCallback(
-        (page: React.MouseEvent | React.KeyboardEvent | string, action: "add" | "remove") => {
-            //page=TestMachineApplication_TestMachineApplication_View_page_xml
+        (/* a.k.a. enclose(page)*/ key: React.MouseEvent | React.KeyboardEvent | string, action: "add" | "remove") => {
+            // page=TestMachineApplication_TestMachineApplication_View_page_xml
             if (action === "add") {
                 // add();
             } else {
                 // remove
-                let newActiveKey = activeKey;
                 let lastIndex = -1;
                 itemsRef.current.forEach((item, i) => {
-                    if (item.key === page) {
+                    if (item.key === key) {
                         lastIndex = i - 1;
                     }
                 });
 
-                const removeIndex = itemsRef.current.findIndex(item => item.key === page);
+                const removeIndex = itemsRef.current.findIndex(item => item.key === key);
                 if (removeIndex >= 0) {
-                    openPages.splice(removeIndex, 1);
-                    setOpenPages(openPages);
+                    // openPages.splice(removeIndex, 1);
+                    // setOpenPages(itemsRef.current.map(item => item.page));
                 }
 
-                const newPanes = itemsRef.current.filter(item => item.key !== page);
-                if (newPanes.length && newActiveKey === page) {
+                const newPanes = itemsRef.current.filter(item => item.key !== key);
+                let newActiveKey = itemsRef.current[lastIndex].key;
+                if (newPanes.length) {
                     if (lastIndex >= 0) {
                         newActiveKey = newPanes[lastIndex].key;
                     } else {
@@ -149,7 +151,7 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
                 }
                 setItems(newPanes);
                 itemsRef.current = newPanes;
-                // setActiveKey(newActiveKey);
+                setOpenPages(itemsRef.current.map(item => item.page));
                 onChange(newActiveKey);
             }
         },
@@ -164,41 +166,56 @@ export default function BadgeSample(props: BadgeSampleProps): ReactElement {
             acc[key] = form._context._mxidToObject[key].getGuid();
             return acc;
         }, {});
-        mx.ui.openForm2(item.page, param,item.label,null,item.option,0);
-    }
+        mx.ui.openForm2(item.page, param, item.label, null, item.option, 0);
+    };
 
-    const onReady: OnReadyFunction = useCallback((page: string, form: any, option: any) => {
-        if (page.endsWith("_Redirect.page.xml")) {
-            form.destroy();
-            return;
-        }
-        formMap.current.get(page)?.destroy();
-        formMap.current.set(page, form);
-        ref.current?.querySelector(`#${tabsId}-panel-${encodePage(page)}`)!.appendChild(form.domNode);
-        setItems(p => {
-            const index = p.findIndex(item => item.key === encodePage(page));
-            p.forEach(item => delete item.icon);
-            // change page label in p
-            p[index].label = form.title;
-            p[index].option = option;
-            p[index].page = page;
-            // delete p[index].icon;
-            p[index].icon = <span className="mx-icon-lined mx-icon-refresh" onClick={() => refreshFn(encodePage(page))}></span>;
-            const preDisp = p[index].disp;
-            if (preDisp) {
-                preDisp();
-                delete p[index].disp;
+    const onReady: OnReadyFunction = useCallback(
+        (page: string, form: any, option: any) => {
+            if (page.endsWith("_Redirect.page.xml")) {
+                form.destroy();
+                return;
             }
-            const disp = form.listen('close', () => {
-                onEdit(encodePage(page), 'remove');
+            formMap.current.get(page)?.destroy();
+            formMap.current.set(page, form);
+            ref.current?.querySelector(`#${tabsId}-panel-${encodePage(page)}`)!.appendChild(form.domNode);
+            setItems(p => {
+                const index = p.findIndex(item => item.key === encodePage(page));
+                p.forEach(item => delete item.icon);
+                // change page label in p
+                p[index].label = form.title;
+                p[index].option = option;
+                p[index].page = page;
+                // delete p[index].icon;
+                p[index].icon = (
+                    <span className="mx-icon-lined mx-icon-refresh" onClick={() => refreshFn(encodePage(page))}></span>
+                );
+                const preDisp = p[index].disp;
+                if (preDisp) {
+                    preDisp();
+                    delete p[index].disp;
+                }
+                const disp = form.listen("close", () => {
+                    if (itemsRef.current.length > items.length) {
+                        const lastForm = formMap.current.get(itemsRef.current.slice(-1)[0].page);
+                        if (lastForm) {
+                            setTimeout(() => {
+                                // lastForm.publish('close');
+                                onEdit(itemsRef.current.slice(-1)[0].key, "remove");
+                            }, 0);
+                        }
+                    } else {
+                        onEdit(encodePage(page), "remove");
+                    }
+                });
+                p[index].disp = disp;
+                itemsRef.current = index >= 0 ? [...p] : p;
+                return itemsRef.current;
             });
-            p[index].disp = disp;
-            itemsRef.current = index >= 0 ? [...p] : p;
-            return itemsRef.current;
-        });
-        setPageTitle(form.title);
-        mx.ui.getContentForm().setSuspend(false);
-    }, [onEdit]);
+            setPageTitle(form.title);
+            mx.ui.getContentForm().setSuspend(false);
+        },
+        [onEdit]
+    );
 
     usePatch(peek, onReady);
 
