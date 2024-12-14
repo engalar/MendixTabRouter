@@ -37,7 +37,7 @@
     "@types/jest": "^29.0.0",
     "@types/react-test-renderer": "~18.0.0",
     "@vitejs/plugin-react": "^4.2.1",
-    "cypress": "^10.10.0",
+    "cypress": "^13.9.0",
     "eslint": "^8.57.0",
     "eslint-plugin-jest": "^28.5.0",
     "eslint-plugin-react-hooks": "^4.6.2",
